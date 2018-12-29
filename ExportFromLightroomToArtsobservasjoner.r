@@ -102,10 +102,10 @@ ExportFromLR = function(DIR = "C:/Users/post/Dropbox/",
   datas = datas[!is.na(Øst)]
   # replikate, ingen interesse av flere rapporter av samme individid. velge en arbitrær avkutt på 1 time mellom observasjoner
   setorder(datas, name, startdato)
-  datas = datas[,.SD[1], c("name", "startdato", "Hour")]
-  
   datas[,`Fra klokkeslett`:=as.ITime(datas$`Fra klokkeslett`, format = "%H:%M:%S")]
   datas[,Hour:=hour(`Fra klokkeslett`)]
+  datas = datas[,.SD[1], c("name", "startdato", "Hour")]
+  
   datas[,mins := round(minute(datas$`Fra klokkeslett`) + second(datas$`Fra klokkeslett`)/60)]
   datas[,mins := ifelse(mins==60,59,mins)]
   
