@@ -1,11 +1,11 @@
 # LightroomStuff
-Utils for lightroom
+Disse filene kan brukes til å knytte sammen Lightroom og informasjon og tjenester fra Artsdatabanken.
 
 Artsdatabank_LR_Keyword_Hierarchy.r : Oppskriften bak det å gå fra Artsdabanken sin info til å lage en fil som kan importeres til Lightroom.
 
 
 
-LR_Keywords.txt: Filen man får fra 'Artsdatabank_LR_Keyword_Hierarchy.r'. Denne kan lastes og importeres til Lightroom gjennom Library--> 'Metadata'--> 'Import keywords'. Da vil alle Norges arter innen plante-, dyre- og soppriket ligge under nøkkelordet 'Taksonomi' i 'Keywords'-panelet.
+LR_Keywords.txt: Filen man får fra 'Artsdatabank_LR_Keyword_Hierarchy.r'. Denne kan lastes ned og importeres inn til Lightroom gjennom Library--> 'Metadata'--> 'Import keywords'. Da vil alle Norges arter innen plante-, dyre- og soppriket ligge under nøkkelordet 'Taksonomi' i 'Keywords'-panelet.
 
 
 
