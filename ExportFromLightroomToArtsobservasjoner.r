@@ -1,6 +1,5 @@
-##### LOAD LR LIBRARY ######
-ExportFromLR = function(DIR = "C:/Users/post/Dropbox/", 
-                        LR_FILE = "C:/Users/post/Dropbox/Bøker/Bildekatalog_ForLR_vers6.db",
+ExportFromLR = function(DIR, 
+                        LR_FILE,
                         Nynorsk = FALSE,
                         Nøyaktighet = 5,
                         FørsteDato = "01-01-1970"){
@@ -9,10 +8,11 @@ ExportFromLR = function(DIR = "C:/Users/post/Dropbox/",
   library(zoo)
   # Nøyaktighet: GPS nøyaktighet. Basert på erfaring med kamera
   # DIR: Hvor skal filer lagres?
-  # LR_FILE: lokalitet hvor man skal finne LR-katalogen, og mellomlagre filer
+  # LR_FILE: lokalitet hvor man skal finne LR-katalogen
   # Nynorsk: har man brukt nynorske namn på arter?
   # FromDate: fra dato man skal jobbe med. I tilfelle man bare vil hente ut data etter en viss dato.
-  #DIR = "C:/Users/post/Dropbox/"
+  # DIR = "C:/Users/post/Dropbox/"
+  # LR_FILE = "C:/Users/post/Dropbox/Bildekatalog_ForLR_vers8.lrcat"
   setwd(DIR)
   # Laster inn skjema som viser hvordan filer skal være strukturert
   # This currently fails to download a proper copy of the file, the file get corrupted, so currently needs to be manually downloaded using the same link in e.g. Chrome, Internet Explorer
@@ -114,23 +114,34 @@ ExportFromLR = function(DIR = "C:/Users/post/Dropbox/",
   
   # Bare bruk bilder med nivå
   idx = sapply(datas$lc_name, 
-         function(ii){
-           a = ii %in% Reference[Nivå %in% c("Art", "Slekt", "Familie")]$PopulærnavnBokmål
-           a2 = ii %in% Reference[Nivå %in% c("Art", "Slekt", "Familie")]$LatinskNavn
-           a3 = ii %in% Reference[Nivå %in% c("Art", "Slekt", "Familie")]$PopulærnavnNynorsk
-           max(c(a,a2,a3))
-         })
+               function(ii){
+                 a = ii %in% Reference[Nivå %in% c("Art", "Slekt", "Familie")]$PopulærnavnBokmål
+                 a2 = ii %in% Reference[Nivå %in% c("Art", "Slekt", "Familie")]$LatinskNavn
+                 a3 = ii %in% Reference[Nivå %in% c("Art", "Slekt", "Familie")]$PopulærnavnNynorsk
+                 max(c(a,a2,a3))
+               })
   
   datas = datas[idx==1]
   setnames(datas, "name", "artsnavn")
   
-  # Fjern overflødige kolonner
-  datas[,c("id_global", "Hour", "image", "id_local", "tag", "lc_name"):=NULL]
   
   # Legg til en info-kolonne om denne prosedyren
   datas[,`Privat kommentar (kun synlig for deg selv)`:="Automatisk generert fra Lightroom info mha script"]
   datas[,Nøyaktighet := Nøyaktighet] # Basert på når kameraet ligger i ro på samme plass
-  datas[, lokalitetsnavn:=""]
+  
+  Locs = data.table(dbReadTable(db,"AgHarvestedIptcMetadata")) # 
+  Locs[,c("image", "cityRef")]
+  Locs_ = data.table(dbReadTable(db,"AgInternedIptcCity")) # 
+  Locs_ = Locs_[,c("id_local", "value")]
+  setnames(Locs_, c("id_local","value"), c("image","lokalitetsnavn"))
+  Locs = Locs_[Locs, on = "image"]
+  Locs[,c("image", "lokalitetsnavn")]
+  # Hvis data mangler bruke 'Norge' som default
+  datas[, lokalitetsnavn:=ifelse(is.na(lokalitetsnavn), "Norge",lokalitetsnavn)]
+  
+  # Fjern overflødige kolonner
+  datas[,c("id_global", "Hour", "image", "id_local", "tag", "lc_name"):=NULL]
+  
   # Har fortsatt ikke funnet ut hvordan jeg får linket med fil-navn, så fjerner denne for nå
   #datas = dL[,c("id_global", "idx_filename")][datas, on = "id_global"]
   #datas[,idx_filename:=NULL]
