@@ -5,7 +5,7 @@ Artsdatabank_LR_Keyword_Hierarchy.r : Oppskriften bak det å gå fra Artsdabanke
 
 
 
-LR_Keywords.txt: Filen man får fra 'Artsdatabank_LR_Keyword_Hierarchy.r'. Denne kan lastes ned og importeres inn til Lightroom gjennom Library--> 'Metadata'--> 'Import keywords'. Da vil alle Norges arter innen plante-, dyre- og soppriket ligge under nøkkelordet 'Taksonomi' i 'Keywords'-panelet.
+LR_Keywords.txt: Filen man får fra 'Artsdatabank_LR_Keyword_Hierarchy.r'. Denne kan lastes ned og importeres inn til Lightroom gjennom Library--> 'Metadata'--> 'Import keywords'. Da vil alle Norges arter innen plante-, dyre- og soppriket ligge under nøkkelordet 'Taksonomi' i 'Keyword list'-panelet.
 
 
 
