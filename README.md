@@ -1,5 +1,5 @@
 # LightroomStuff
-Disse filene kan brukes til å knytte sammen Lightroom og informasjon og tjenester fra Artsdatabanken.
+Disse filene kan brukes til å knytte Lightroom sammen med informasjon og tjenester fra Artsdatabanken.
 
 Artsdatabank_LR_Keyword_Hierarchy.r : Oppskriften bak det å gå fra Artsdabanken sin info til å lage en fil som kan importeres til Lightroom.
 
