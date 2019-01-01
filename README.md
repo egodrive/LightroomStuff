@@ -15,3 +15,6 @@ Fremtidige steg:
 - Gjør denne koden uavhengig av R? Implementere den i f.eks. PowerShell som finnes i alle pc-er som default.
 - Inkl. engelske artsnavn?
 
+
+ps! Beklager for eventuelle engelske kommentarer i .r-filene. Programmeringsdelen av hjernen min er engelsk.
+
