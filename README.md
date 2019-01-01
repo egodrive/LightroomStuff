@@ -13,3 +13,5 @@ ExportFromLightroomToArtsobservasjoner.r: Hvis man har bilder med GPS-info og ke
 
 Fremtidige steg: 
 - Gjør denne koden uavhengig av R? Implementere den i f.eks. PowerShell som finnes i alle pc-er som default.
+- Inkl. engelske artsnavn?
+
