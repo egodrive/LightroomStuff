@@ -1,4 +1,3 @@
-# source('C:/Users/post/Dropbox/ArterLR/Artsdatabank_til_LRkeywords.R', encoding = 'UTF-16')
 ### LR KEYWORDS ###
 LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
                       Clade = NULL,
