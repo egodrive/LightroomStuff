@@ -1,4 +1,6 @@
-LRkeywords = function(Name = "Bokmål",
+LRkeywords = function(
+  TopLevel = "Taksonomi",
+  Name = "Bokmål",
          Riker = c("Fungi", "Plantae", "Animalia"),
          Cols = c("Rike", "Rekke", "Klasse", "Orden", "Familie", "Slekt", "Art","Underart"),
          Synonyms = c("Latin", "Nynorsk")
@@ -114,6 +116,6 @@ LRkeywords = function(Name = "Bokmål",
   HierarchyTot
   
   #output
-  HierarchyTot
+  HierarchyTot = rbind(data.table(TopLevel),HierarchyTot, fill = T)
   write.table(HierarchyTot, file = "LR_keyword.txt", sep="\t", row.names = F, quote = F, col.names = F)
   }
