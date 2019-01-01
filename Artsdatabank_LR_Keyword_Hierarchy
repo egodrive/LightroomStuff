@@ -1,0 +1,119 @@
+LRkeywords = function(Name = "Bokmål",
+         Riker = c("Fungi", "Plantae", "Animalia"),
+         Cols = c("Rike", "Rekke", "Klasse", "Orden", "Familie", "Slekt", "Art","Underart"),
+         Synonyms = c("Latin", "Nynorsk")
+){
+  library(data.table)
+  DIR = "C:/Users/post/Dropbox/"
+  # Laster inn fil med artsnavn fra Artsdatabanken
+  if(!file.exists("Artsnavnebase.csv")){download.file(url = "http://eksport.artsdatabanken.no/Artsnavnebase/Artsnavnebase.csv", destfile = "Artsnavnebase.csv", method = "curl")}
+  Reference = fread("Artsnavnebase.csv", na.strings = "")
+  # There is an error with the first colum
+  names(Reference) = c(names(Reference)[-1], "NA")
+  Reference = Reference[,c("Rike", "Rekke", "Klasse", "Orden", "Familie", "Slekt", "Art", "Underart", "PopulærnavnBokmål", "PopulærnavnNynorsk"),with = F]
+  
+  # Subset to relevant kingdoms
+  Reference = Reference[which(Rike %in% Riker)]
+  Reference
+  
+  # Add nivå
+  Reference[,Nivå:=apply(Reference, 1, function(ii){
+    names(Reference)[min(which(is.na(ii)))-1]
+  })]
+  
+  # Latinsk navn
+  Reference[,Latin:=apply(Reference, 1, function(ii){
+    unlist(ii[which(is.na(ii))-1])[1]
+  })]
+  
+  Reference[,LatinskNavn := ifelse(Nivå=="Underart",(paste(Slekt, Art, Underart)),
+                                   ifelse(Nivå=="Art",(paste(Slekt, Art)),
+                                          Latin))][,Latin:=NULL]
+  
+  #fjerner taxa som ikke inneholder arter
+  setorder(Reference, Rike, Rekke, Klasse, Orden, Familie, Slekt, Art)
+  
+  Reference[,InneholderArter:=any(Nivå=="Art"),"Rike"]
+  Reference=Reference[!(Nivå=="Rike"& InneholderArter==FALSE)]
+  
+  Reference[,InneholderArter:=any(Nivå=="Art"),"Rekke"]
+  Reference=Reference[!(Nivå=="Rekke"& InneholderArter==FALSE)]
+  
+  Reference[,InneholderArter:=any(Nivå=="Art"),"Klasse"]
+  Reference=Reference[!(Nivå=="Klasse"&InneholderArter==FALSE)]
+  
+  Reference[,InneholderArter:=any(Nivå=="Art"),"Orden"]
+  Reference=Reference[!(Nivå=="Orden"&InneholderArter==FALSE)]
+  
+  Reference[,InneholderArter:=any(Nivå=="Art"),"Familie"]
+  Reference=Reference[!(Nivå=="Familie"&InneholderArter==FALSE)]
+  
+  Reference[,InneholderArter:=any(Nivå=="Art"),"Slekt"]
+  Reference=Reference[!(Nivå=="Slekt"&InneholderArter==FALSE)]
+  Reference[,InneholderArter:=NULL]
+  
+  setnames(Reference, c("PopulærnavnBokmål", "PopulærnavnNynorsk", "LatinskNavn"), c("Bokmål", "Nynorsk", "Latin"))
+  
+  Levels = length(Cols)
+  if(!is.null(Synonyms)){
+    Levels = Levels + 1
+  }
+  Hierarchy = as.data.frame(sapply(1:Levels,function(II)rep(NA,nrow(Reference))))
+  if(!is.null(Synonyms)){
+    HierarchyS = lapply(1:length(Synonyms),function(ii) Hierarchy)
+  }
+  
+  Reference
+  Reference[,Nynorsk:=Hmisc::capitalize(Reference$Nynorsk)]
+  Reference[,Bokmål:=Hmisc::capitalize(Reference$Bokmål)]
+  
+  # Add nivå
+  Reference[,Nivå:=apply(Reference, 1, function(ii){
+    names(Reference)[min(c(9,which(is.na(ii))))-1]
+  })]
+  Reference[,nNivå:=as.numeric(factor(Nivå, levels = Cols))]
+  
+  Reference[,Mål:=with(Reference, ifelse(is.na(eval(parse(text = Name))), Latin, eval(parse(text = Name))))]
+  
+  Reference2 = copy(Reference)
+  Reference = copy(Reference2)#[(73053-10):(73053+5)]
+  
+  if(is.null(Synonyms)){
+    sapply(1:nrow(Reference), function(ii){
+      print(ii)
+      #a = Reference[ii,which(names(Reference)==Name),with=F]
+      Hierarchy[ii, Reference$nNivå[ii]]<<-Reference$Mål[ii]
+      HierarchyTot = data.table(Hierarchy)
+    })
+  }else{
+    sapply(1:nrow(Reference), function(ii){
+      print(ii)
+      #a = Reference[ii,which(names(Reference)==Name),with=F]
+      Hierarchy[ii, Reference$nNivå[ii]]<<-Reference$Mål[ii]
+      
+      for(iii in seq_along(Synonyms)){
+        HierarchyS[[iii]][ii, (Reference$nNivå[ii]+1)]<<-paste0("{",Reference[,eval(parse(text = Synonyms[iii]))][ii],"}")
+      }
+      Hierarchy$idx=seq(1, by = length(Synonyms)+1, length.out = nrow(Hierarchy))
+      
+    })
+    sapply(seq_along(Synonyms), function(iii){
+      HierarchyS[[iii]]$idx<<-seq(iii+1, by = length(Synonyms), length.out = nrow(Hierarchy))
+    })
+  }
+  
+  if(!is.null(Synonyms)){
+    HierarchyTot = rbind(Hierarchy, do.call("rbind",HierarchyS))
+    HierarchyTot = data.table(HierarchyTot)
+    setorder(HierarchyTot, idx)
+  }
+  library(stringr)
+  HierarchyTot = apply(HierarchyTot, c(1,2), function(x)ifelse(is.na(x), "",x))
+  HierarchyTot = data.table(apply(HierarchyTot, c(1,2), function(x)ifelse(x=="{NA}", "",x)))
+  HierarchyTot$idx=NULL
+  HierarchyTot
+  
+  #output
+  HierarchyTot
+  write.table(HierarchyTot, file = "LR_keyword.txt", sep="\t", row.names = F, quote = F, col.names = F)
+  }
