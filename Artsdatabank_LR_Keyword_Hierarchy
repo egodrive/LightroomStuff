@@ -1,3 +1,4 @@
+# source('C:/Users/post/Dropbox/ArterLR/Artsdatabank_til_LRkeywords.R', encoding = 'UTF-16')
 ### LR KEYWORDS ###
 LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
                       Clade = NULL,
@@ -26,14 +27,17 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
     names(Reference) = c(names(Reference)[-1], "NA")
   }else{
     Reference = fread(InputFil)}
-  if(FinnesINorge){Reference = Reference[FinnesINorge=="Ja"]}
   
+  Norge = Reference$FinnesINorge
   Reference = Reference[,c("Rike", "Rekke", "Klasse", "Orden", "Familie", "Slekt", "Art", "Underart", "PopulærnavnBokmål", "PopulærnavnNynorsk"),with = F]
   
   # Add nivå
   Reference[,Nivå:=apply(Reference, 1, function(ii){
     names(Reference)[min(which(is.na(ii)))-1]
   })]
+  
+  # Fjern arter som ikke finnes in Norge
+  if(FinnesINorge){Reference = Reference[!(Reference$Nivå %in% c("Art", "UnderArt") & Norge=="Nei")]}
   
   # Latinsk navn
   Reference[,Latin:=apply(Reference, 1, function(ii){
@@ -44,7 +48,7 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
                                           Latin))][,Latin:=NULL]
   # Subset to relevant kingdoms
   Reference = Reference[which(Rike %in% Riker)]
-  Reference
+  #Reference
   
   # Subsette til relevante nivå
   if(!is.null(Clade)){
@@ -52,7 +56,6 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
     Reference = Reference[IDX]
   }
 
-  
   #fjerner taxa som ikke inneholder arter
   setorder(Reference, Rike, Rekke, Klasse, Orden, Familie, Slekt, Art)
   
@@ -77,9 +80,6 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
   
   setnames(Reference, c("PopulærnavnBokmål", "PopulærnavnNynorsk", "LatinskNavn"), c("Bokmål", "Nynorsk", "Latin"))
   
-
-  
-  
   Levels = length(Cols)
   if(!is.null(Synonyms)){
     Levels = Levels + 1
@@ -91,7 +91,7 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
   }
   
  Reference[,Nynorsk:=Hmisc::capitalize(Reference$Nynorsk)]
-  Reference[,Bokmål:=Hmisc::capitalize(Reference$Bokmål)]
+ Reference[,Bokmål:=Hmisc::capitalize(Reference$Bokmål)]
   
   # Add nivå
   Reference[,Nivå:=apply(Reference, 1, function(ii){
@@ -101,6 +101,7 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
   
   Reference[,Mål:=with(Reference, ifelse(is.na(eval(parse(text = Name))), Latin, eval(parse(text = Name))))]
   
+  print("Nå vil ting ta litt tid")
   if(is.null(Synonyms)){
     sapply(1:nrow(Reference), function(ii){
       print(ii)
@@ -110,7 +111,7 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
     })
   }else{
     sapply(1:nrow(Reference), function(ii){
-      print(ii)
+      #print(ii)
       #a = Reference[ii,which(names(Reference)==Name),with=F]
       Hierarchy[ii, Reference$nNivå[ii]]<<-Reference$Mål[ii]
       
@@ -122,12 +123,9 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
       
       
     })
-    sapply(seq_along(Synonyms), function(iii){
-      
-      HierarchyS[[iii]]$IDX <<- iii
-    })
   }
-  
+  #20.49
+  print("Den tidkrevende delen er nå over :). Tar ca 10 min hvis man bruker dyre-, plante- og soppriket.")
   if(!is.null(Synonyms)){
     #Hierarchy$IDX=1
     HierarchyTot = rbind(Hierarchy, do.call("rbind",HierarchyS))
@@ -149,5 +147,6 @@ LRkeywords = function(TopLevel = "Taksonomi",Name = "Bokmål",
   #output
   write.table(HierarchyTot, file = UtFil, sep="\t", row.names = F, quote = F, col.names = F, fileEncoding = "UTF-8")
 }
+
 # Example
-LRkeywords(Clade = "Falco", UtFil = "LR_Keywords2.txt")
+LRkeywords(UtFil = "LR_Keywords.txt")
