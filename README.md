@@ -5,7 +5,7 @@ Disse filene kan brukes til å knytte Lightroom sammen med informasjon og tjenes
 
 - Artsdatabank_LR_Keyword_Hierarchy.r : Oppskriften bak det å gå fra Artsdabanken sin info til å lage en fil som kan importeres til Lightroom.
 
-- ExportFromLightroomToArtsobservasjoner.r: Hvis man har bilder med GPS-info og keywords som tilsvarer norske artsnavn (eller fra hierarkiet nevnt over) i Lightroom kan man bruke dette skriptet til å lage en tekstfil som kan lastes opp til Artsobservasjoner. I Artsobservasjoner kan denne tekstfilenn klippes-limes rett inn i.
+- ExportFromLightroomToArtsobservasjoner.r: Hvis man har bilder med GPS-info og keywords som tilsvarer norske artsnavn (eller fra hierarkiet nevnt over) i Lightroom kan man bruke dette skriptet til å lage en tekstfil som kan lastes opp til Artsobservasjoner. I Artsobservasjoner kan denne tekstfilen klippes-limes rett inn i.
 
 Fremtidige steg: 
 - Gjør denne koden uavhengig av R? Implementere den i f.eks. PowerShell som finnes i alle pc-er som default.
